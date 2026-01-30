@@ -402,7 +402,9 @@ class RohlikVoiceCard extends HTMLElement {
   async _connectWebSocket() {
     return new Promise((resolve, reject) => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${window.location.host}/api/rohlik_voice/ws`;
+      // Add authentication token to WebSocket URL
+      const token = this._hass?.auth?.data?.access_token || '';
+      const wsUrl = `${protocol}//${window.location.host}/api/rohlik_voice/ws?token=${token}`;
       
       this._ws = new WebSocket(wsUrl);
       this._ws.binaryType = 'arraybuffer';
