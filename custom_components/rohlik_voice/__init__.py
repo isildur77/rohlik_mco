@@ -13,18 +13,16 @@ from .const import (
     CONF_ROHLIK_EMAIL,
     CONF_ROHLIK_PASSWORD,
     CONF_OPENAI_API_KEY,
+    PLATFORMS,
 )
 from .mcp_client import RohlikMCPClient
-from .websocket_api import RohlikVoiceWebSocketView, async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
-
-PLATFORMS: list[str] = []
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Rohlik Voice Assistant from a config entry."""
-    _LOGGER.info("Setting up Rohlik Voice Assistant")
+    _LOGGER.info("Setting up Rohlik Voice Assistant v2.0")
 
     # Get credentials from config entry (stored encrypted)
     email = entry.data[CONF_ROHLIK_EMAIL]
@@ -49,11 +47,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "openai_api_key": api_key,
     }
 
-    # Register WebSocket API
-    async_register_websocket_api(hass)
-
-    # Register HTTP WebSocket view for audio streaming
-    hass.http.register_view(RohlikVoiceWebSocketView(hass))
+    # Set up platforms (conversation agent)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _LOGGER.info("Rohlik Voice Assistant setup complete")
     return True
@@ -63,6 +58,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     _LOGGER.info("Unloading Rohlik Voice Assistant")
 
+    # Unload platforms
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
     # Close MCP client
     if entry.entry_id in hass.data.get(DOMAIN, {}):
         mcp_client = hass.data[DOMAIN][entry.entry_id].get("mcp_client")
@@ -70,7 +68,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             await mcp_client.close()
         hass.data[DOMAIN].pop(entry.entry_id)
 
-    return True
+    return unload_ok
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
