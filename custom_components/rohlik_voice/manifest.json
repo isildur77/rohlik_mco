@@ -4,9 +4,9 @@
   "codeowners": [],
   "config_flow": true,
   "dependencies": ["http"],
-  "documentation": "https://github.com/YOUR_USERNAME/rohlik-ha-integration",
+  "documentation": "https://github.com/isildur77/rohlik_mco",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/YOUR_USERNAME/rohlik-ha-integration/issues",
+  "issue_tracker": "https://github.com/isildur77/rohlik_mco/issues",
   "requirements": [
     "aiohttp>=3.8.0",
     "websockets>=12.0"

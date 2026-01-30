@@ -41,7 +41,7 @@ Tablet (HA App) → Home Assistant Green → OpenAI Realtime API
 ### Krok 2: Přidej Rohlik Voice
 
 1. **HACS → Integrations → menu (3 tečky) → Custom repositories**
-2. URL: `https://github.com/YOUR_USERNAME/rohlik-ha-integration`
+2. URL: `https://github.com/isildur77/rohlik_mco`
 3. Kategorie: **Integration**
 4. Klikni **Add**
 5. Vyhledej "Rohlik Voice" → **Download**
