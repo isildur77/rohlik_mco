@@ -7,33 +7,28 @@ ROHLIK_TOOLS = [
     {
         "type": "function",
         "name": "search_products",
-        "description": "Vyhledá produkty na Rohlíku podle názvu nebo popisu. Použij když uživatel chce najít nebo přidat konkrétní produkt.",
+        "description": "Vyhledá produkty na Rohlíku podle názvu nebo popisu. Použij když uživatel chce najít nebo přidat konkrétní produkt. Vrací seznam produktů s productId, productName, price, inStock.",
         "parameters": {
             "type": "object",
             "properties": {
-                "query": {
+                "keyword": {
                     "type": "string",
-                    "description": "Hledaný výraz (název produktu, značka, kategorie)",
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "Maximální počet výsledků (výchozí 10)",
-                    "default": 10,
+                    "description": "Hledaný výraz (název produktu, značka, kategorie). Např: 'mléko', 'bio jogurt', 'kuřecí prsa'",
                 },
             },
-            "required": ["query"],
+            "required": ["keyword"],
         },
     },
     {
         "type": "function",
         "name": "add_to_cart",
-        "description": "Přidá produkt do košíku. Potřebuje ID produktu z vyhledávání.",
+        "description": "Přidá produkt do košíku. Potřebuje ID produktu (číslo) z vyhledávání.",
         "parameters": {
             "type": "object",
             "properties": {
                 "product_id": {
-                    "type": "string",
-                    "description": "ID produktu z vyhledávání",
+                    "type": "integer",
+                    "description": "ID produktu z vyhledávání (číslo, např. 1234567)",
                 },
                 "quantity": {
                     "type": "integer",
@@ -47,7 +42,7 @@ ROHLIK_TOOLS = [
     {
         "type": "function",
         "name": "get_cart",
-        "description": "Zobrazí aktuální obsah košíku včetně produktů a celkové ceny.",
+        "description": "Zobrazí aktuální obsah košíku včetně produktů, množství a celkové ceny.",
         "parameters": {
             "type": "object",
             "properties": {},
@@ -57,16 +52,45 @@ ROHLIK_TOOLS = [
     {
         "type": "function",
         "name": "remove_from_cart",
-        "description": "Odebere produkt z košíku.",
+        "description": "Odebere produkt z košíku úplně.",
         "parameters": {
             "type": "object",
             "properties": {
                 "product_id": {
-                    "type": "string",
-                    "description": "ID produktu k odebrání",
+                    "type": "integer",
+                    "description": "ID produktu k odebrání (číslo)",
                 },
             },
             "required": ["product_id"],
+        },
+    },
+    {
+        "type": "function",
+        "name": "update_cart_item",
+        "description": "Změní množství produktu v košíku.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "product_id": {
+                    "type": "integer",
+                    "description": "ID produktu v košíku",
+                },
+                "quantity": {
+                    "type": "integer",
+                    "description": "Nové množství (0 = odebrat)",
+                },
+            },
+            "required": ["product_id", "quantity"],
+        },
+    },
+    {
+        "type": "function",
+        "name": "clear_cart",
+        "description": "Vyprázdní celý košík - smaže všechny položky.",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+            "required": [],
         },
     },
 ]

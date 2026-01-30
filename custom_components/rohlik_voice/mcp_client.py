@@ -1,6 +1,7 @@
 """Rohlik MCP Client for communicating with Rohlik.cz MCP server."""
 
 import asyncio
+import json
 import logging
 from typing import Any
 
@@ -21,6 +22,7 @@ class RohlikMCPClient:
         self._session: aiohttp.ClientSession | None = None
         self._headers = {
             "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
             "rhl-email": email,
             "rhl-pass": password,
         }
@@ -37,6 +39,18 @@ class RohlikMCPClient:
         """Close the session."""
         if self._session and not self._session.closed:
             await self._session.close()
+
+    def _parse_sse_response(self, text: str) -> dict[str, Any]:
+        """Parse Server-Sent Events (SSE) response format."""
+        result = {}
+        for line in text.strip().split("\n"):
+            if line.startswith("data: "):
+                data_str = line[6:]  # Remove "data: " prefix
+                try:
+                    result = json.loads(data_str)
+                except json.JSONDecodeError as err:
+                    _LOGGER.error("Failed to parse SSE data: %s", err)
+        return result
 
     async def _call_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         """Call a tool on the MCP server."""
@@ -65,7 +79,9 @@ class RohlikMCPClient:
                     )
                     return {"error": f"HTTP {response.status}: {error_text}"}
                 
-                result = await response.json()
+                # Parse SSE response format
+                text = await response.text()
+                result = self._parse_sse_response(text)
                 
                 if "error" in result:
                     _LOGGER.error("MCP error: %s", result["error"])
@@ -98,43 +114,59 @@ class RohlikMCPClient:
             ) as response:
                 if response.status != 200:
                     return {"error": f"HTTP {response.status}"}
-                return await response.json()
+                # Parse SSE response format
+                text = await response.text()
+                return self._parse_sse_response(text)
         except Exception as err:
             _LOGGER.error("Failed to list tools: %s", err)
             return {"error": str(err)}
 
     async def search_products(
         self,
-        query: str,
-        limit: int = 10,
+        keyword: str,
     ) -> dict[str, Any]:
         """Search for products on Rohlik."""
         return await self._call_tool(
             "search_products",
-            {"query": query, "limit": limit},
+            {"keyword": keyword},
         )
 
     async def add_to_cart(
         self,
-        product_id: str,
+        product_id: int,
         quantity: int = 1,
     ) -> dict[str, Any]:
         """Add a product to the cart."""
         return await self._call_tool(
-            "add_to_cart",
-            {"productId": product_id, "quantity": quantity},
+            "add_items_to_cart",
+            {"items": [{"productId": product_id, "quantity": quantity}]},
         )
 
     async def get_cart(self) -> dict[str, Any]:
         """Get the current cart contents."""
-        return await self._call_tool("get_cart_content", {})
+        return await self._call_tool("get_cart", {})
 
-    async def remove_from_cart(self, product_id: str) -> dict[str, Any]:
+    async def remove_from_cart(self, product_id: int) -> dict[str, Any]:
         """Remove a product from the cart."""
         return await self._call_tool(
-            "remove_from_cart",
-            {"productId": product_id},
+            "remove_cart_item",
+            {"product_id": product_id},
         )
+    
+    async def update_cart_item(self, product_id: int, quantity: int) -> dict[str, Any]:
+        """Update quantity of a product in the cart."""
+        return await self._call_tool(
+            "update_cart_item",
+            {"product_id": product_id, "quantity": quantity},
+        )
+    
+    async def clear_cart(self) -> dict[str, Any]:
+        """Clear all items from the cart."""
+        return await self._call_tool("clear_cart", {})
+    
+    async def get_user_info(self) -> dict[str, Any]:
+        """Get user information."""
+        return await self._call_tool("get_user_info", {})
 
     async def test_connection(self) -> bool:
         """Test if the connection to Rohlik MCP server works."""

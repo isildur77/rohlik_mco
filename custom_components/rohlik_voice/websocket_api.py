@@ -60,24 +60,30 @@ class RohlikVoiceWebSocketView(HomeAssistantView):
 
         async def on_function_call(name: str, arguments: dict) -> Any:
             """Handle function calls from the AI."""
-            _LOGGER.info("Executing function: %s", name)
+            _LOGGER.info("Executing function: %s with args: %s", name, arguments)
             
             if name == "search_products":
                 return await mcp_client.search_products(
-                    query=arguments.get("query", ""),
-                    limit=arguments.get("limit", 10),
+                    keyword=arguments.get("keyword", ""),
                 )
             elif name == "add_to_cart":
                 return await mcp_client.add_to_cart(
-                    product_id=arguments.get("product_id", ""),
-                    quantity=arguments.get("quantity", 1),
+                    product_id=int(arguments.get("product_id", 0)),
+                    quantity=int(arguments.get("quantity", 1)),
                 )
             elif name == "get_cart":
                 return await mcp_client.get_cart()
             elif name == "remove_from_cart":
                 return await mcp_client.remove_from_cart(
-                    product_id=arguments.get("product_id", ""),
+                    product_id=int(arguments.get("product_id", 0)),
                 )
+            elif name == "update_cart_item":
+                return await mcp_client.update_cart_item(
+                    product_id=int(arguments.get("product_id", 0)),
+                    quantity=int(arguments.get("quantity", 0)),
+                )
+            elif name == "clear_cart":
+                return await mcp_client.clear_cart()
             else:
                 return {"error": f"Unknown function: {name}"}
 
@@ -161,8 +167,7 @@ def async_register_websocket_api(hass: HomeAssistant) -> None:
     @websocket_api.websocket_command(
         {
             vol.Required("type"): "rohlik_voice/search",
-            vol.Required("query"): str,
-            vol.Optional("limit", default=10): int,
+            vol.Required("keyword"): str,
         }
     )
     @websocket_api.async_response
@@ -176,8 +181,7 @@ def async_register_websocket_api(hass: HomeAssistant) -> None:
         mcp_client: RohlikMCPClient = hass.data[DOMAIN][entry_id]["mcp_client"]
         
         result = await mcp_client.search_products(
-            query=msg["query"],
-            limit=msg.get("limit", 10),
+            keyword=msg["keyword"],
         )
         connection.send_result(msg["id"], result)
 
