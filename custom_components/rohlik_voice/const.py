@@ -1,0 +1,22 @@
+"""Constants for the Rohlik Voice integration."""
+
+DOMAIN = "rohlik_voice"
+
+# Configuration keys
+CONF_ROHLIK_EMAIL = "rohlik_email"
+CONF_ROHLIK_PASSWORD = "rohlik_password"
+CONF_OPENAI_API_KEY = "openai_api_key"
+
+# Rohlik MCP Server
+ROHLIK_MCP_URL = "https://mcp.rohlik.cz/mcp"
+
+# OpenAI Realtime API
+OPENAI_REALTIME_URL = "wss://api.openai.com/v1/realtime"
+OPENAI_REALTIME_MODEL = "gpt-4o-mini-realtime-preview"
+
+# WebSocket
+WS_PATH = "/api/rohlik_voice/ws"
+
+# Timeouts
+MCP_TIMEOUT = 30
+REALTIME_TIMEOUT = 60

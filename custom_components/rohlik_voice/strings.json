@@ -1,0 +1,29 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Rohlik Voice Assistant",
+        "description": "Zadejte přihlašovací údaje k Rohlíku a OpenAI API klíč.\n\nÚdaje budou uloženy šifrovaně.",
+        "data": {
+          "rohlik_email": "E-mail (Rohlik.cz)",
+          "rohlik_password": "Heslo (Rohlik.cz)",
+          "openai_api_key": "OpenAI API klíč"
+        },
+        "data_description": {
+          "rohlik_email": "Váš přihlašovací e-mail k účtu na Rohlik.cz",
+          "rohlik_password": "Heslo k účtu na Rohlik.cz",
+          "openai_api_key": "API klíč z platform.openai.com (potřebuje přístup k Realtime API)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nelze se připojit k Rohlíku. Zkontrolujte připojení k internetu.",
+      "invalid_auth": "Neplatné přihlašovací údaje k Rohlíku.",
+      "invalid_openai_key": "Neplatný OpenAI API klíč. Klíč musí začínat 'sk-'.",
+      "unknown": "Neočekávaná chyba."
+    },
+    "abort": {
+      "already_configured": "Tento účet je již nakonfigurován."
+    }
+  }
+}
